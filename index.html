@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Pre-Consultation Questionnaire</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --p: #1a6fc4; --pl: #e8f1fb; --pt: #0c447c;
+  --ok: #3B6D11; --okb: #EAF3DE;
+  --warn: #854F0B; --warnb: #FAEEDA;
+  --bad: #A32D2D; --badb: #FCEBEB;
+  --t: #1a1a1a; --tm: #555; --tl: #888;
+  --b: #ddd; --bl: #eee; --bg: #fff; --bg2: #f7f7f5;
+  --r: 10px; --rs: 7px;
+}
+html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--t); font-size: 16px; -webkit-text-size-adjust: 100%; }
+.hdr { background: var(--bg); border-bottom: 1px solid var(--bl); padding: 1rem 1.25rem 0.875rem; }
+.logo { font-size: 11px; font-weight: 700; color: var(--p); letter-spacing: .07em; text-transform: uppercase; margin-bottom: 8px; }
+.pb { height: 4px; background: var(--bl); border-radius: 2px; overflow: hidden; }
+.pf { height: 100%; background: var(--p); border-radius: 2px; transition: width .3s; }
+.pl { font-size: 12px; color: var(--tl); margin-top: 4px; }
+.wrap { max-width: 640px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+h1 { font-size: 21px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; }
+.desc { font-size: 15px; color: var(--tm); line-height: 1.65; margin-bottom: 1.75rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--bl); }
+.slbl { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--tl); margin-bottom: 1.25rem; }
+.qi { margin-bottom: 2rem; }
+.qt { font-size: 16px; font-weight: 500; line-height: 1.5; margin-bottom: 12px; }
+.qs { font-size: 14px; color: var(--tm); margin-top: -6px; margin-bottom: 10px; line-height: 1.5; }
+
+/* Option tiles — pure divs, no inputs */
+.grid { display: grid; gap: 8px; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: 1fr 1fr 1fr; }
+.g5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
+@media (max-width: 380px) { .g5 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: 1fr 1fr; } }
+
+.opt {
+  display: flex; align-items: center; justify-content: center;
+  padding: 12px 8px; border: 1.5px solid var(--b); border-radius: var(--rs);
+  text-align: center; font-size: 13px; color: var(--tm); line-height: 1.3;
+  min-height: 56px; background: var(--bg); cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+  transition: border-color .1s, background .1s, color .1s;
+}
+.opt.sel { border-color: var(--p); background: var(--pl); color: var(--pt); font-weight: 600; }
+
+/* Scale 0-10 */
+.scale { display: flex; gap: 6px; flex-wrap: wrap; }
+.sopt {
+  display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border: 1.5px solid var(--b); border-radius: var(--rs);
+  font-size: 14px; color: var(--tm); background: var(--bg); cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+  transition: border-color .1s, background .1s, color .1s;
+  flex-shrink: 0;
+}
+.sopt.sel { border-color: var(--p); background: var(--pl); color: var(--pt); font-weight: 600; }
+.slbls { display: flex; justify-content: space-between; margin-top: 5px; }
+.slbls span { font-size: 12px; color: var(--tl); }
+
+/* Checkbox tiles */
+.copt {
+  display: flex; align-items: center; gap: 12px; padding: 13px 14px;
+  border: 1.5px solid var(--b); border-radius: var(--rs); background: var(--bg);
+  cursor: pointer; font-size: 15px; color: var(--t);
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+  transition: border-color .1s, background .1s;
+}
+.copt.sel { border-color: var(--p); background: var(--pl); }
+.cbox {
+  width: 20px; height: 20px; border: 1.5px solid var(--b); border-radius: 4px;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  background: var(--bg); transition: background .1s, border-color .1s;
+}
+.copt.sel .cbox { background: var(--p); border-color: var(--p); }
+.cbox::after { content: ''; display: none; width: 5px; height: 9px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translate(-1px,-1px); }
+.copt.sel .cbox::after { display: block; }
+
+/* Select & inputs */
+.sel-wrap { position: relative; }
+.sel-wrap::after { content: '▾'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--tl); pointer-events: none; }
+select { width: 100%; padding: 13px 40px 13px 14px; border: 1.5px solid var(--b); border-radius: var(--rs); font-size: 15px; font-family: inherit; color: var(--t); background: var(--bg); -webkit-appearance: none; appearance: none; }
+textarea { width: 100%; padding: 13px 14px; border: 1.5px solid var(--b); border-radius: var(--rs); font-size: 15px; font-family: inherit; color: var(--t); background: var(--bg); resize: vertical; min-height: 90px; line-height: 1.5; }
+.age-wrap { display: flex; align-items: center; gap: 12px; }
+.age-inp { width: 90px; padding: 13px 14px; border: 1.5px solid var(--b); border-radius: var(--rs); font-size: 20px; font-family: inherit; font-weight: 600; color: var(--t); background: var(--bg); text-align: center; -moz-appearance: textfield; }
+.age-inp::-webkit-outer-spin-button, .age-inp::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.infobox { background: var(--pl); border-left: 3px solid var(--p); border-radius: var(--rs); padding: 12px 14px; font-size: 14px; color: var(--pt); line-height: 1.65; margin-bottom: 1.5rem; }
+.infobox strong { font-weight: 600; }
+
+/* Nav */
+.navrow { display: flex; gap: 12px; margin-top: 2.5rem; }
+.nbtn {
+  flex: 1; padding: 16px 20px; border-radius: var(--r); font-size: 16px; font-weight: 600;
+  text-align: center; cursor: pointer; border: none; font-family: inherit;
+  -webkit-tap-highlight-color: rgba(0,0,0,0); -webkit-touch-callout: none;
+  -webkit-user-select: none; user-select: none;
+}
+.nbtn-p { background: var(--p); color: #fff; }
+.nbtn-s { background: var(--bg); color: var(--tm); border: 1.5px solid var(--b) !important; flex: 0 0 auto; padding: 16px 18px; }
+.nbtn:active { opacity: .8; }
+
+/* Report */
+.rcard { background: var(--bg); border: 1px solid var(--bl); border-radius: var(--r); padding: 1.25rem; margin-bottom: 1rem; }
+.rtitle { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--tl); margin-bottom: .75rem; }
+.rbadge { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 999px; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.rdot { width: 9px; height: 9px; border-radius: 50%; }
+.rg { background: var(--okb); color: var(--ok); } .rg .rdot { background: var(--ok); }
+.ra { background: var(--warnb); color: var(--warn); } .ra .rdot { background: #EF9F27; }
+.rr { background: var(--badb); color: var(--bad); } .rr .rdot { background: #E24B4A; }
+.sbig { font-size: 40px; font-weight: 700; line-height: 1; }
+.sden { font-size: 18px; color: var(--tl); }
+.mgrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.mc { background: var(--bg2); border-radius: var(--rs); padding: 10px; }
+.ml { font-size: 11px; color: var(--tl); margin-bottom: 3px; }
+.mv { font-size: 19px; font-weight: 700; }
+.drow { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--bl); gap: 10px; }
+.drow:last-child { border-bottom: none; }
+.dn { font-size: 13px; min-width: 130px; }
+.dbw { flex: 1; height: 7px; background: var(--bg2); border-radius: 4px; overflow: hidden; }
+.db { height: 100%; border-radius: 4px; }
+.dp { font-size: 13px; font-weight: 600; color: var(--tm); min-width: 28px; text-align: right; }
+.fl { list-style: none; }
+.fi { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--bl); }
+.fi:last-child { border-bottom: none; }
+.fd { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.fr { background: #E24B4A; } .fa { background: #EF9F27; }
+.ft { font-size: 14px; color: var(--t); line-height: 1.5; }
+.nbox { font-size: 14px; color: var(--t); line-height: 1.7; background: var(--bg2); padding: 12px; border-radius: var(--rs); }
+.sq { font-size: 14px; font-style: italic; color: var(--tm); line-height: 1.6; background: var(--bg2); padding: 12px; border-radius: var(--rs); border-left: 3px solid var(--p); }
+.vtog { display: flex; gap: 6px; margin-bottom: 1.25rem; background: var(--bg2); padding: 4px; border-radius: var(--r); }
+.tbtn { flex: 1; padding: 9px 12px; border-radius: calc(var(--r) - 2px); border: none; font-size: 14px; font-family: inherit; background: transparent; color: var(--tm); font-weight: 500; cursor: pointer; -webkit-tap-highlight-color: rgba(0,0,0,0); }
+.tbtn.on { background: var(--bg); color: var(--t); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.pnote { font-size: 13px; color: var(--tl); text-align: center; margin-top: 1.5rem; padding: 12px; background: var(--bg2); border-radius: var(--rs); }
+@media print { .hdr,.navrow,.vtog,.pnote{display:none!important} .wrap{padding:0} body{background:#fff} .rcard{page-break-inside:avoid;border:1px solid #ddd} }
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="logo">Pre-Consultation Assessment</div>
+  <div class="pb"><div class="pf" id="pf" style="width:5%"></div></div>
+  <div class="pl" id="pl">Step 1 of 4</div>
+</div>
+<div class="wrap" id="W"></div>
+
+<script>
+var S = {
+  age:'', proc:'', gi:null, re:null, ae:null, ht:null, comp:null, sd:'',
+  a1:null,a2:null,a3:null, d1:null,d2:null,d3:null,
+  p1:null,p2:null,p3:null, c1:null,c2:null, r1:null, u1:null,
+  pp:null, ps:null, sx:[], rs:null, ds:null, wt:null
+};
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+function g(id){ return document.getElementById(id); }
+
+function setProgress(n, total) {
+  g('pf').style.width = Math.round(n/total*100)+'%';
+  g('pl').textContent = n <= total ? 'Step '+n+' of '+total : 'Complete';
+}
+
+function render(html) {
+  g('W').innerHTML = html;
+  try { window.scrollTo(0,0); } catch(e){}
+  try { document.body.scrollTop = 0; } catch(e){}
+}
+
+// ── option builders ───────────────────────────────────────────────────────────
+function opt(key, val, label, extra) {
+  var sel = S[key] === val ? ' sel' : '';
+  var v = typeof val === 'string' ? "'"+val+"'" : val;
+  return '<div class="opt'+sel+'" ontouchend="ev(event,\''+key+'\','+v+')" onclick="ev(event,\''+key+'\','+v+')"'+(extra||'')+'>'+label+'</div>';
+}
+
+function sopt(key, val) {
+  var sel = S[key] === val ? ' sel' : '';
+  return '<div class="sopt'+sel+'" ontouchend="ev(event,\''+key+'\','+val+')" onclick="ev(event,\''+key+'\','+val+')">'+val+'</div>';
+}
+
+function copt(val, label) {
+  var sel = S.sx.indexOf(val) > -1 ? ' sel' : '';
+  return '<div class="copt'+sel+'" ontouchend="evC(event,\''+val+'\')" onclick="evC(event,\''+val+'\')">'
+    +'<div class="cbox"></div><span>'+label+'</span></div>';
+}
+
+function grid2(key, pairs) {
+  return '<div class="grid g2">'+pairs.map(function(p){return opt(key,p[0],p[1]);}).join('')+'</div>';
+}
+function grid3(key, pairs) {
+  return '<div class="grid g3">'+pairs.map(function(p){return opt(key,p[0],p[1]);}).join('')+'</div>';
+}
+function grid5(key, pairs) {
+  return '<div class="grid g5">'+pairs.map(function(p){return opt(key,p[0],p[1]);}).join('')+'</div>';
+}
+function scale(key) {
+  var h='<div class="scale">';
+  for(var i=0;i<=10;i++) h+=sopt(key,i);
+  return h+'</div>';
+}
+
+function qi(q, sub, inp) {
+  return '<div class="qi"><div class="qt">'+q+'</div>'+(sub?'<div class="qs">'+sub+'</div>':'')+inp+'</div>';
+}
+
+function nbtn(label, fn, sec) {
+  return '<div class="nbtn '+(sec?'nbtn-s':'nbtn-p')+'" ontouchend="nev(event,\''+fn+'\')" onclick="nev(event,\''+fn+'\')">'+label+'</div>';
+}
+
+// ── event handlers ────────────────────────────────────────────────────────────
+function ev(e, key, val) {
+  e.preventDefault();
+  e.stopPropagation();
+  S[key] = val;
+  // Re-style siblings without full re-render
+  var t = e.currentTarget || e.target;
+  var parent = t.parentNode;
+  if (parent) {
+    var kids = parent.children;
+    for (var i=0; i<kids.length; i++) {
+      kids[i].className = kids[i].className.replace(' sel','');
+    }
+    t.className += ' sel';
+  }
+  if (key === 'proc') onProcChange();
+}
+
+function evC(e, val) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (val === 'none') {
+    S.sx = S.sx.indexOf('none') > -1 ? [] : ['none'];
+  } else {
+    var ni = S.sx.indexOf('none');
+    if (ni > -1) S.sx.splice(ni,1);
+    var idx = S.sx.indexOf(val);
+    if (idx > -1) S.sx.splice(idx,1); else S.sx.push(val);
+  }
+  // Re-render just the checkbox group
+  var cg = document.querySelector('.checkbox-group');
+  if (cg) cg.innerHTML = checkboxGroup();
+}
+
+function checkboxGroup() {
+  return copt('chronic_pain','Chronic pain')+
+    copt('migraine','Migraines')+
+    copt('tinnitus','Tinnitus (ringing in ears)')+
+    copt('ibs','IBS or chronic gut issues')+
+    copt('fibro','Fibromyalgia or chronic fatigue')+
+    copt('light_sens','Sensitivity to light or noise')+
+    copt('none','None of the above');
+}
+
+function nev(e, fn) {
+  e.preventDefault();
+  e.stopPropagation();
+  window[fn]();
+}
+
+function onAgeChange() {
+  S.age = parseInt(g('ageF').value)||0;
+  var pn = g('pn'); var cq = g('cq');
+  if(pn) pn.style.display = (S.age > 0 && S.age < 45) ? 'block' : 'none';
+  if(cq) cq.style.display = (S.age >= 42 || S.proc === 'cataract' || S.proc === 'rle') ? 'block' : 'none';
+}
+
+function onProcChange() {
+  var sel = g('procF'); if(!sel) return;
+  S.proc = sel.value;
+  var cq = g('cq');
+  if(cq) cq.style.display = (S.age >= 42 || S.proc === 'cataract' || S.proc === 'rle') ? 'block' : 'none';
+}
+
+// ── steps ─────────────────────────────────────────────────────────────────────
+function step1() {
+  setProgress(1,4);
+  var compShow = (S.age >= 42 || S.proc === 'cataract' || S.proc === 'rle') ? 'block':'none';
+  var presbyShow = (S.age > 0 && S.age < 45) ? 'block':'none';
+  render(
+    '<h1>Before your consultation</h1>'+
+    '<p class="desc">This questionnaire helps your surgeon understand your lifestyle, expectations, and how you\'re feeling. There are no right or wrong answers. It takes about 8–10 minutes.</p>'+
+    '<div class="slbl">About your procedure &amp; expectations</div>'+
+
+    '<div class="qi"><div class="qt">How old are you?</div>'+
+    '<div class="age-wrap"><input id="ageF" class="age-inp" type="number" min="18" max="100" inputmode="numeric" value="'+(S.age||'')+'" oninput="onAgeChange()"><span style="font-size:15px;color:var(--tl)">years old</span></div></div>'+
+
+    '<div class="qi"><div class="qt">What procedure are you being assessed for?</div>'+
+    '<div class="sel-wrap"><select id="procF" onchange="S.proc=this.value; onProcChange()">'+
+    '<option value=""'+(S.proc===''?' selected':'')+'>Select...</option>'+
+    '<option value="cataract"'+(S.proc==='cataract'?' selected':'')+'>Cataract surgery</option>'+
+    '<option value="lasik"'+(S.proc==='lasik'?' selected':'')+'>LASIK</option>'+
+    '<option value="rle"'+(S.proc==='rle'?' selected':'')+'>Lens replacement (RLE)</option>'+
+    '<option value="icl"'+(S.proc==='icl'?' selected':'')+'>ICL (implantable contact lens)</option>'+
+    '</select></div></div>'+
+
+    qi('How important is it to you to be free of glasses after surgery?', null,
+      scale('gi')+'<div class="slbls"><span>Not important</span><span>Extremely important</span></div>')+
+
+    qi('After surgery, how often do you expect to need glasses for reading?', null,
+      grid5('re',[[1,'Never'],[2,'Rarely'],[3,'Sometimes'],[4,'Often'],[5,'Always']]))+
+
+    '<div id="pn" class="infobox" style="display:'+presbyShow+'">'+
+    '<strong>Worth knowing:</strong> Most people begin to lose the ability to read clearly without glasses between ages 42 and 45 — this is called presbyopia, and it happens to almost everyone regardless of surgery. Your surgeon can discuss lens options designed to address this.</div>'+
+
+    '<div id="cq" style="display:'+compShow+'">'+
+    qi('Some lens options can extend your range of vision — allowing you to see near and far without glasses — but may involve a slight reduction in distance sharpness.',
+      'Would you accept a small compromise in sharpness to gain a wider range of vision without glasses?',
+      grid2('comp',[[1,'Yes — I\'d happily trade some sharpness for more range'],[2,'Probably yes — if the trade-off is small'],[3,'Not sure — I\'d need more information'],[4,'No — I want the sharpest possible distance vision, even if I need reading glasses']]))+
+    '</div>'+
+
+    qi('How long do you expect your vision to take before feeling completely normal?', null,
+      grid2('ae',[[1,'A few days'],[2,'A few weeks'],[3,'Several months'],[4,'Not sure']]))+
+
+    qi('If you occasionally noticed halos or rings around lights at night, how bothered would you be?', null,
+      grid2('ht',[[0,'Not at all'],[1,'A little'],[2,'Moderately'],[3,'Very much'],[4,'Extremely']]))+
+
+    '<div class="qi"><div class="qt">In your own words, what would make this surgery a complete success for you?</div>'+
+    '<textarea id="sdF" placeholder="e.g. to drive without glasses, to read a menu comfortably...">'+S.sd+'</textarea></div>'+
+
+    '<div class="navrow">'+nbtn('Continue →','step2')+'</div>'
+  );
+}
+
+function step2() {
+  saveStep1fields();
+  setProgress(2,4);
+  var f2 = function(k,pairs){ return grid2(k,pairs); };
+  render(
+    '<h1>How you\'ve been feeling</h1>'+
+    '<p class="desc">Over the last two weeks, how often have you been bothered by the following?</p>'+
+    qi('Feeling nervous, anxious, or on edge',null,
+      f2('a1',[[0,'Not at all'],[1,'Several days'],[2,'More than half the days'],[3,'Nearly every day']]))+
+    qi('Not being able to stop or control worrying',null,
+      f2('a2',[[0,'Not at all'],[1,'Several days'],[2,'More than half the days'],[3,'Nearly every day']]))+
+    qi('Worrying too much about different things',null,
+      f2('a3',[[0,'Not at all'],[1,'Several days'],[2,'More than half the days'],[3,'Nearly every day']]))+
+    qi('Little interest or pleasure in doing things',null,
+      f2('d1',[[0,'Not at all'],[1,'Several days'],[2,'More than half the days'],[3,'Nearly every day']]))+
+    qi('Feeling down, depressed, or hopeless',null,
+      f2('d2',[[0,'Not at all'],[1,'Several days'],[2,'More than half the days'],[3,'Nearly every day']]))+
+    qi('Trouble falling or staying asleep, or sleeping too much',null,
+      f2('d3',[[0,'Not at all'],[1,'Several days'],[2,'More than half the days'],[3,'Nearly every day']]))+
+    '<div class="navrow">'+nbtn('← Back','step1',true)+nbtn('Continue →','step3')+'</div>'
+  );
+}
+
+function step3() {
+  setProgress(3,4);
+  var f5 = function(k){ return grid5(k,[[1,'Strongly disagree'],[2,'Disagree'],[3,'Neutral'],[4,'Agree'],[5,'Strongly agree']]); };
+  render(
+    '<h1>Your approach to things</h1>'+
+    '<p class="desc">Please answer based on how you generally are, not just right now.</p>'+
+    qi('I notice mistakes and things that could be improved more than most people',null,f5('p1'))+
+    qi('When I make a decision, I often second-guess myself',null,f5('p2'))+
+    qi('If something isn\'t quite right, it tends to stay on my mind',null,f5('p3'))+
+    qi('When something goes wrong physically, I tend to think it\'s serious',null,f5('c1'))+
+    qi('I find it hard to put problems out of my mind',null,f5('c2'))+
+    qi('I tend to bounce back quickly after difficult times',null,
+      grid5('r1',[[5,'Strongly disagree'],[4,'Disagree'],[3,'Neutral'],[2,'Agree'],[1,'Strongly agree']]))+
+    qi('It is hard for me to cope well when things are uncertain',null,f5('u1'))+
+    '<div class="navrow">'+nbtn('← Back','step2',true)+nbtn('Continue →','step4')+'</div>'
+  );
+}
+
+function step4() {
+  setProgress(4,4);
+  render(
+    '<h1>Your history &amp; background</h1>'+
+    '<p class="desc">A few final questions to help your surgeon personalise the conversation.</p>'+
+    qi('Have you had any previous elective procedures (eye surgery, cosmetic, dental, orthopaedic)?',null,
+      grid3('pp',[['no','No'],['yes','Yes'],['unsure','Not sure']]))+
+    qi('If yes — how satisfied were you with those outcomes overall?',null,
+      scale('ps')+'<div class="slbls"><span>Very dissatisfied</span><span>Very satisfied</span></div>')+
+    '<div class="qi"><div class="qt">Do you experience any of the following? (tick all that apply)</div>'+
+    '<div class="checkbox-group">'+checkboxGroup()+'</div></div>'+
+    qi('How much time have you spent researching lens or surgery options before today?',null,
+      grid2('rs',[[1,'None'],[2,'Less than 1 hour'],[3,'1–5 hours'],[4,'More than 5 hours']]))+
+    qi('Who first suggested you consider this procedure?',null,
+      grid3('ds',[['self','I suggested it myself'],['doctor','My doctor suggested it'],['other','Someone else (friend, ad, etc.)']]))+
+    qi('If your vision took several months to fully settle, how would you feel about that?',null,
+      grid2('wt',[[1,'Completely fine — I understand this takes time'],[2,'A little frustrated but I\'d manage'],[3,'Quite worried — I\'d need reassurance'],[4,'Very distressed — this would be very hard for me']]))+
+    '<div class="navrow">'+nbtn('← Back','step3',true)+nbtn('See summary →','buildReport')+'</div>'
+  );
+}
+
+function saveStep1fields() {
+  var af = g('ageF'); if(af) S.age = parseInt(af.value)||0;
+  var sf = g('sdF'); if(sf) S.sd = sf.value;
+  var pf = g('procF'); if(pf) S.proc = pf.value;
+}
+
+// ── scoring ───────────────────────────────────────────────────────────────────
+function n(k){ return S[k] !== null ? parseInt(S[k]) : 0; }
+
+function buildReport() {
+  saveStep1fields();
+  var anx=n('a1')+n('a2')+n('a3'), dep=n('d1')+n('d2')+n('d3');
+  var perf=n('p1')+n('p2')+n('p3'), cat=n('c1')+n('c2');
+  var res=n('r1'), unc=n('u1'), halo=n('ht'), wt=n('wt');
+  var gi=n('gi'), re=n('re'), ae=n('ae'), rs=n('rs');
+  var ps = S.ps !== null ? parseInt(S.ps) : 10;
+  var age=parseInt(S.age)||0, comp=n('comp');
+  var presb=age>=42, appr=age>=38&&age<42;
+  var sxc=S.sx.filter(function(v){return v!=='none';}).length;
+
+  var aP=Math.round(anx/9*100), dP=Math.round(dep/9*100);
+  var pfP=Math.round(Math.max(0,(perf-3)/12)*100);
+  var cP=Math.round(Math.max(0,(cat-2)/8)*100);
+  var rP=Math.round(Math.max(0,(res-1)/4)*100);
+  var uP=Math.round(Math.max(0,(unc-1)/4)*100);
+  var eR=(gi>=8?20:gi>=6?10:0)+(re===1&&presb?15:re===2?5:0)+(ae===1?10:0)+(halo>=3?10:halo>=2?5:0)+(comp===4&&presb?10:0);
+  var eP=Math.min(100,eR);
+  var bR=(S.pp==='yes'&&ps<6?20:S.pp==='yes'&&ps<8?10:0)+(sxc>=2?20:sxc===1?8:0)+(rs>=3?10:0)+(wt>=3?15:wt===2?5:0)+(S.ds==='self'?5:0);
+  var bP=Math.min(100,bR);
+  var comp2=Math.round(aP*.18+dP*.12+pfP*.16+cP*.12+rP*.08+uP*.08+eP*.14+bP*.12);
+
+  var rc,rl,rs2,nt;
+  if(comp2<30){rc='rg';rl='Low risk';rs2='Proceed with standard counselling';nt='No major psychological risk factors identified. Standard informed consent process is appropriate. Confirm expectations are realistic during consultation.';}
+  else if(comp2<60){rc='ra';rl='Moderate risk';rs2='Enhanced counselling recommended';nt='Some risk factors present. Address flagged areas explicitly before confirming lens choice. Consider a structured expectation-setting conversation and document key points. A follow-up call before surgery may be beneficial.';}
+  else{rc='rr';rl='High risk';rs2='Extended counselling advised — review lens choice carefully';nt='Significant risk factors identified. Consider extended counselling, a cooling-off period, or a monofocal lens if premium IOL is planned. Document the informed consent conversation carefully.';}
+
+  var doms=[
+    {nm:'Anxiety',p:aP},{nm:'Depression',p:dP},{nm:'Perfectionism',p:pfP},{nm:'Catastrophising',p:cP},
+    {nm:'Low resilience',p:rP},{nm:'Uncertainty intolerance',p:uP},{nm:'Expectations risk',p:eP},{nm:'Behavioural history',p:bP}
+  ];
+  var dH=doms.map(function(d){
+    var col=d.p<33?'#3B6D11':d.p<66?'#BA7517':'#E24B4A';
+    return '<div class="drow"><span class="dn">'+d.nm+'</span><div class="dbw"><div class="db" style="width:'+d.p+'%;background:'+col+'"></div></div><span class="dp">'+d.p+'</span></div>';
+  }).join('');
+
+  var flags=[];
+  var at=age>0?age+' yrs':'not provided';
+  flags.push({l:'a',t:age===0?'Age not provided — confirm presbyopia status during consultation.':age<38?'Patient is '+at+' — not yet presbyopic. Reading glasses expectation after surgery is reasonable without a premium IOL. Presbyopia onset typically age 42–45.':appr?'Patient is '+at+' — approaching presbyopia. Counsel that near vision may decline within a few years regardless of surgery.':'Patient is '+at+' — presbyopic. Near vision correction is a relevant consideration; discuss range-extending lens options.'});
+  if(anx>=5) flags.push({l:anx>=10?'r':'a',t:'Elevated anxiety ('+anx+'/9) — explore concerns about surgery and recovery; reinforce reassurance pathway'});
+  if(dep>=5) flags.push({l:dep>=7?'r':'a',t:'Depressive symptoms ('+dep+'/9) — may negatively bias outcome perception; monitor closely post-op'});
+  if(perf>=11) flags.push({l:'r',t:'High perfectionism — patient likely to fixate on minor imperfections; counsel carefully on realistic outcomes'});
+  if(cat>=7) flags.push({l:'a',t:'Tendency to catastrophise — prepare patient for normal post-op variation; provide clear escalation pathway'});
+  if(sxc>=2) flags.push({l:'r',t:'Multiple sensory sensitivities ('+sxc+') — central sensitisation pattern likely; higher risk of dysphotopsia amplification with premium IOL'});
+  else if(sxc===1) flags.push({l:'a',t:'One sensory sensitivity — note potential for central sensitisation; consider in lens selection'});
+  if(gi>=9&&re===1) flags.push({l:'r',t:'Unrealistic spectacle independence expectations — patient expects never to need glasses; explicit recalibration required'});
+  else if(gi>=8) flags.push({l:'a',t:'High spectacle independence expectation — confirm patient understands some glasses use may remain even with premium lenses'});
+  if(ae===1) flags.push({l:'a',t:'Expects full recovery within days — underestimates neuroadaptation; discuss 3–6 month window explicitly'});
+  if(halo>=3) flags.push({l:'a',t:'Low dysphotopsia tolerance — consider EDOF or monofocal over trifocal; manage night-driving expectations'});
+  if(S.pp==='yes'&&ps<6) flags.push({l:'r',t:'Prior elective procedure dissatisfaction — pattern of unmet expectations; consider extended counselling'});
+  if(wt>=3) flags.push({l:'a',t:'Low tolerance for adaptation period — will need proactive structured follow-up post-op'});
+  if(rs>=3&&perf>=10) flags.push({l:'a',t:'Extensive pre-op research + high perfectionism — patient may arrive with rigid expectations; explore what they have read'});
+  if(presb&&comp===4) flags.push({l:'r',t:'Presbyopic but unwilling to compromise distance sharpness — strongly prefers monofocal; extended range lenses likely a poor fit'});
+  if(presb&&comp===3) flags.push({l:'a',t:'Presbyopic but undecided on sharpness compromise — spend time explaining monofocal vs. extended range tradeoff'});
+  if(appr&&re===1&&gi>=8) flags.push({l:'a',t:'Approaching presbyopic age with high spectacle independence goal — counsel that near vision may deteriorate in coming years'});
+  if(flags.length===1) flags.push({l:'a',t:'No significant psychological flags identified — proceed with standard informed consent process'});
+
+  var fH=flags.map(function(f){return '<li class="fi"><span class="fd f'+f.l+'"></span><span class="ft">'+f.t+'</span></li>';}).join('');
+
+  var pf2=[];
+  if(age>0&&appr) pf2.push('You are approaching the age (42–45) when most people start to need reading glasses — ask your surgeon how this might affect your lens choice.');
+  if(presb&&comp===4) pf2.push('You prefer the sharpest distance vision — your surgeon will explain how a standard lens compares to range-extending options.');
+  if(presb&&comp===3) pf2.push('You were unsure about the sharpness vs. range tradeoff — ask your surgeon to walk you through what the difference feels like in everyday life.');
+  if(anx>=5) pf2.push('You mentioned feeling anxious — your surgeon can walk you through exactly what to expect at every stage.');
+  if(ae===1) pf2.push('Recovery takes longer than most people expect — ask your surgeon about the neuroadaptation process and what is normal in the first few months.');
+  if(halo>=3) pf2.push('Some lens types can cause mild glare at night — ask your surgeon which lens best suits your lifestyle.');
+  if(gi>=9) pf2.push('Your goal of being fully free from glasses is important — discuss with your surgeon exactly how realistic this is for your eyes.');
+  if(sxc>=1) pf2.push('Your sensory sensitivity history is relevant to your lens choice — make sure your surgeon is aware of all the conditions you ticked.');
+  if(wt>=3) pf2.push('It sounds like the settling-in period may be challenging — ask about what support and follow-up will be available.');
+  if(pf2.length===0) pf2.push('Your responses look straightforward — your surgeon will talk through your options and answer any questions you have.');
+  var pfH=pf2.map(function(t){return '<li class="fi"><span class="fd fa"></span><span class="ft">'+t+'</span></li>';}).join('');
+
+  var procL={cataract:'Cataract surgery',lasik:'LASIK',rle:'Lens replacement (RLE)',icl:'ICL'};
+  window._rd={comp:comp2,rc:rc,rl:rl,rs:rs2,nt:nt,dH:dH,fH:fH,anx:anx,dep:dep,perf:perf,sd:S.sd||'—',age:age,proc:procL[S.proc]||'—'};
+  window._pf=pfH;
+
+  setProgress(5,4);
+
+  // Patient sees only a warm thank-you — no clinical data
+  render(
+    '<div style="text-align:center;padding:2.5rem 1rem 2rem">'+
+    '<div style="width:64px;height:64px;border-radius:50%;background:var(--okb);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem">'+
+    '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'+
+    '</div>'+
+    '<h1 style="font-size:22px;margin-bottom:12px">Thank you</h1>'+
+    '<p style="font-size:15px;color:var(--tm);line-height:1.7;max-width:420px;margin:0 auto 2rem">Your responses have been recorded. Your surgeon will review them before your consultation and use them to personalise the conversation with you. There is nothing else you need to do.</p>'+
+    '<p style="font-size:14px;color:var(--tl)">You can now hand the device back.</p>'+
+    '</div>'+
+    '<div style="margin-top:1rem;border-top:1px solid var(--bl);padding-top:1.5rem">'+
+    '<div style="font-size:12px;color:var(--tl);text-align:center;margin-bottom:1rem;letter-spacing:.05em;text-transform:uppercase;font-weight:600">Surgeon access</div>'+
+    '<div id="pin-area">'+
+    '<p style="font-size:14px;color:var(--tm);text-align:center;margin-bottom:1rem">Enter your PIN to view the clinical report</p>'+
+    '<div style="display:flex;gap:10px;justify-content:center;margin-bottom:1rem">'+
+    '<input id="pin1" type="password" inputmode="numeric" maxlength="1" style="width:52px;height:56px;text-align:center;font-size:24px;font-weight:700;border:1.5px solid var(--b);border-radius:var(--rs);background:var(--bg);color:var(--t);font-family:inherit" oninput="pinMove(this,\'pin2\')">'+
+    '<input id="pin2" type="password" inputmode="numeric" maxlength="1" style="width:52px;height:56px;text-align:center;font-size:24px;font-weight:700;border:1.5px solid var(--b);border-radius:var(--rs);background:var(--bg);color:var(--t);font-family:inherit" oninput="pinMove(this,\'pin3\')">'+
+    '<input id="pin3" type="password" inputmode="numeric" maxlength="1" style="width:52px;height:56px;text-align:center;font-size:24px;font-weight:700;border:1.5px solid var(--b);border-radius:var(--rs);background:var(--bg);color:var(--t);font-family:inherit" oninput="pinMove(this,\'pin4\')">'+
+    '<input id="pin4" type="password" inputmode="numeric" maxlength="1" style="width:52px;height:56px;text-align:center;font-size:24px;font-weight:700;border:1.5px solid var(--b);border-radius:var(--rs);background:var(--bg);color:var(--t);font-family:inherit" oninput="pinCheck()">'+
+    '</div>'+
+    '<div id="pin-err" style="font-size:13px;color:var(--bad);text-align:center;min-height:20px"></div>'+
+    '</div>'+
+    '</div>'
+  );
+}
+
+var PIN = '1234'; // Change this to your preferred PIN
+
+function pinMove(el, nextId) {
+  if (el.value.length === 1) {
+    var next = g(nextId);
+    if (next) next.focus();
+  }
+}
+
+function pinCheck() {
+  var entered = (g('pin1').value||'')+(g('pin2').value||'')+(g('pin3').value||'')+(g('pin4').value||'');
+  if (entered.length < 4) return;
+  if (entered === PIN) {
+    showReport();
+  } else {
+    g('pin-err').textContent = 'Incorrect PIN — please try again';
+    ['pin1','pin2','pin3','pin4'].forEach(function(id){ g(id).value=''; });
+    g('pin1').focus();
+  }
+}
+
+function showReport() {
+  var d = window._rd;
+  g('pin-area').innerHTML =
+    '<div class="vtog" style="margin-top:.5rem">'+
+    '<button type="button" class="tbtn on" id="ts" onclick="sv(\'s\')">Surgeon view</button>'+
+    '<button type="button" class="tbtn" id="tp" onclick="sv(\'p\')">Patient notes</button>'+
+    '</div>'+
+
+    '<div id="vs">'+
+    '<div class="rcard"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">'+
+    '<div><div class="rtitle">Overall risk profile</div><div class="rbadge '+d.rc+'"><span class="rdot"></span>'+d.rl+'</div>'+
+    '<div style="font-size:14px;color:var(--tm);margin-top:4px">'+d.rs+'</div></div>'+
+    '<div style="text-align:right"><span class="sbig">'+d.comp+'</span><span class="sden"> / 100</span>'+
+    '<div style="font-size:12px;color:var(--tl);margin-top:2px">composite risk score</div></div>'+
+    '</div></div>'+
+    '<div class="mgrid">'+
+    '<div class="mc"><div class="ml">Anxiety</div><div class="mv">'+d.anx+'/9</div></div>'+
+    '<div class="mc"><div class="ml">Depression</div><div class="mv">'+d.dep+'/9</div></div>'+
+    '<div class="mc"><div class="ml">Perfectionism</div><div class="mv">'+d.perf+'/15</div></div>'+
+    '</div>'+
+    '<div class="rcard"><div class="rtitle">Domain breakdown</div>'+d.dH+'</div>'+
+    '<div class="rcard"><div class="rtitle">Clinical flags</div><ul class="fl">'+d.fH+'</ul></div>'+
+    '<div class="rcard"><div class="rtitle">Suggested approach</div><div class="nbox">'+d.nt+'</div></div>'+
+    '<div class="rcard"><div class="rtitle">Patient\'s definition of success</div><div class="sq">'+(d.sd||'Not provided')+'</div></div>'+
+    '</div>'+
+
+    '<div id="vp" style="display:none">'+
+    '<div class="rcard"><div class="rtitle">Patient-facing talking points</div>'+
+    '<ul class="fl">'+window._pf+'</ul></div>'+
+    '</div>'+
+
+    '<div class="navrow">'+
+    '<div class="nbtn nbtn-s" ontouchend="nev(event,\'resetForm\')" onclick="nev(event,\'resetForm\')">← New patient</div>'+
+    '<div class="nbtn nbtn-p" ontouchend="nev(event,\'openPrint\')" onclick="nev(event,\'openPrint\')">Print / Save PDF</div>'+
+    '</div>'+
+    '<div class="pnote">Tap "Print / Save PDF" → new tab opens → use browser Print menu → Save as PDF</div>';
+}
+
+function sv(v) {
+  g('vs').style.display = v==='s'?'block':'none';
+  g('vp').style.display = v==='p'?'block':'none';
+  g('ts').className = 'tbtn'+(v==='s'?' on':'');
+  g('tp').className = 'tbtn'+(v==='p'?' on':'');
+}
+
+function resetForm() {
+  S={age:'',proc:'',gi:null,re:null,ae:null,ht:null,comp:null,sd:'',
+    a1:null,a2:null,a3:null,d1:null,d2:null,d3:null,p1:null,p2:null,p3:null,
+    c1:null,c2:null,r1:null,u1:null,pp:null,ps:null,sx:[],rs:null,ds:null,wt:null};
+  step1();
+}
+
+function openPrint() {
+  var d=window._rd; if(!d) return;
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pre-Consultation Report</title>'+
+    '<style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:720px;margin:0 auto;padding:2rem 1.5rem;color:#1a1a1a}'+
+    'h1{font-size:20px;font-weight:600;margin-bottom:4px}.meta{font-size:13px;color:#888;margin-bottom:1.5rem}'+
+    '.rc{border:1px solid #e0e0e0;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:1rem;page-break-inside:avoid}'+
+    '.rt{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:.6rem}'+
+    '.rb{display:inline-flex;align-items:center;gap:7px;padding:7px 15px;border-radius:999px;font-size:14px;font-weight:700;margin-bottom:6px}'+
+    '.rd{width:9px;height:9px;border-radius:50%}'+
+    '.rg{background:#EAF3DE;color:#3B6D11}.rg .rd{background:#3B6D11}'+
+    '.ra{background:#FAEEDA;color:#854F0B}.ra .rd{background:#EF9F27}'+
+    '.rr{background:#FCEBEB;color:#A32D2D}.rr .rd{background:#E24B4A}'+
+    '.sb{font-size:36px;font-weight:700;line-height:1}.sd{font-size:18px;color:#888}'+
+    '.mg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem}'+
+    '.mc{background:#f7f7f5;border-radius:7px;padding:10px}.ml{font-size:11px;color:#888;margin-bottom:3px}.mv{font-size:19px;font-weight:700}'+
+    '.dr{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid #eee;gap:10px}.dr:last-child{border-bottom:none}'+
+    '.dn{font-size:13px;min-width:140px}.dw{flex:1;height:7px;background:#f0f0f0;border-radius:4px;overflow:hidden}'+
+    '.db{height:100%;border-radius:4px}.dp{font-size:13px;font-weight:600;color:#666;min-width:30px;text-align:right}'+
+    '.fl{list-style:none;padding:0;margin:0}.fi{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #eee}.fi:last-child{border-bottom:none}'+
+    '.fd{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:5px}.fr{background:#E24B4A}.fa{background:#EF9F27}'+
+    '.ft{font-size:14px;line-height:1.5}.nb{font-size:14px;line-height:1.7;background:#f7f7f5;padding:12px;border-radius:7px}'+
+    '.sq{font-size:14px;font-style:italic;color:#555;line-height:1.6;background:#f7f7f5;padding:12px;border-radius:7px;border-left:3px solid #1a6fc4}'+
+    '</style></head><body>'+
+    '<h1>Pre-Consultation Assessment Report</h1>'+
+    '<div class="meta">Age: '+(d.age||'—')+' &nbsp;|&nbsp; Procedure: '+d.proc+' &nbsp;|&nbsp; '+new Date().toLocaleDateString()+'</div>'+
+    '<div class="rc"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">'+
+    '<div><div class="rt">Overall risk profile</div><div class="rb '+d.rc+'"><span class="rd"></span>'+d.rl+'</div>'+
+    '<div style="font-size:14px;color:#555;margin-top:4px">'+d.rs+'</div></div>'+
+    '<div style="text-align:right"><span class="sb">'+d.comp+'</span><span class="sd"> / 100</span></div></div></div>'+
+    '<div class="mg"><div class="mc"><div class="ml">Anxiety</div><div class="mv">'+d.anx+'/9</div></div>'+
+    '<div class="mc"><div class="ml">Depression</div><div class="mv">'+d.dep+'/9</div></div>'+
+    '<div class="mc"><div class="ml">Perfectionism</div><div class="mv">'+d.perf+'/15</div></div></div>'+
+    '<div class="rc"><div class="rt">Domain breakdown</div>'+d.dH.replace(/class="drow"/g,'class="dr"').replace(/class="domain-name"/g,'class="dn"').replace(/class="domain-bar-wrap"/g,'class="dw"').replace(/class="domain-bar"/g,'class="db"').replace(/class="domain-pct"/g,'class="dp"')+'</div>'+
+    '<div class="rc"><div class="rt">Clinical flags</div><ul class="fl">'+d.fH+'</ul></div>'+
+    '<div class="rc"><div class="rt">Suggested approach</div><div class="nb">'+d.nt+'</div></div>'+
+    '<div class="rc"><div class="rt">Patient\'s definition of success</div><div class="sq">'+d.sd+'</div></div>'+
+    '<script>window.onload=function(){window.print()}<\/script></body></html>';
+  var blob=new Blob([html],{type:'text/html'});
+  var url=URL.createObjectURL(blob);
+  var w=window.open(url,'_blank');
+  if(!w) alert('Please allow pop-ups, then tap "Print / Save PDF" again.');
+}
+
+// ── init ──────────────────────────────────────────────────────────────────────
+step1();
+</script>
+</body>
+</html>
